@@ -1,0 +1,37 @@
+service:
+  name: "multi-courier-integration-platform"
+  env: "local"
+  shutdown_timeout: 20000
+  before_shutdown_delay: 5000
+
+http:
+  port: "3000"
+
+logging:
+  level: info
+
+mysql:
+  primary:
+    host: 127.0.0.1
+    port: "3306"
+    username: root
+    password: ''
+    db_name: multi_courier
+    connectionLimit: 30
+    poolTimeout: 20
+    connectTimeout: 10
+  replica:
+    host: 127.0.0.1
+    port: "3306"
+    username: root
+    password: ''
+    db_name: multi_courier
+    connectionLimit: 30
+    poolTimeout: 20
+    connectTimeout: 10
+
+redis:
+  host: localhost
+  port: 6379
+  password: ''
+  db: 0

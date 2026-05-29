@@ -1,0 +1,19 @@
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  name         String     @db.VarChar(255)
+  email        String     @unique @db.VarChar(255)
+  password     String     @db.VarChar(255)
+  mobileNumber String     @unique @map("mobile_number") @db.VarChar(20)
+  status       UserStatus @default(ACTIVE)
+  deletedAt    DateTime?  @map("deleted_at") @db.Timestamp(0)
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt    DateTime   @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  @@map("users")
+}
