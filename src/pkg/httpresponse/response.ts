@@ -41,6 +41,13 @@ export class ResponseBuilder {
     this.response.error = error.message;
     this.httpStatusCode = error.getStatus();
 
+    const detail = (
+      error as AppAPIError & { getDetail?: () => Record<string, unknown> }
+    ).getDetail?.();
+    if (detail) {
+      this.customFields = { ...this.customFields, error_detail: detail };
+    }
+
     if (error.getResult()) {
       this.response.result = error.getResult();
     }
@@ -52,6 +59,11 @@ export class ResponseBuilder {
     this.response.status = 1;
     this.response.result = data;
     this.httpStatusCode = StatusCodes.OK;
+    return this;
+  }
+
+  setHTTPCode(statusCode: number): ResponseBuilder {
+    this.httpStatusCode = statusCode;
     return this;
   }
 

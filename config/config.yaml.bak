@@ -10,6 +10,9 @@ http:
 logging:
   level: info
 
+cache:
+  enabled: false
+
 mysql:
   primary:
     host: 127.0.0.1
@@ -35,3 +38,28 @@ redis:
   port: 6379
   password: ''
   db: 0
+
+bulk:
+  maxOrders: 100
+  concurrency: 10
+
+auth:
+  jwtSecret: "local-dev-jwt-secret-change-me"
+  jwtExpiresInHours: 24
+  bcryptSaltRounds: 12
+
+couriers:
+  urbanebolt:
+    enabled: true
+    baseUrl: "https://uat.urbanebolt.in"
+    username: "info@urbanebolt.com"
+    password: "EKIcygsLVV5RCtPZ"
+    customerCode: "UEBCUS0008"
+    csrfToken: "SuZfjeJQJQNlDaNxRJgaMqylRWlqogsL"
+    sessionId: ""
+    timeoutMs: 30000
+    retryCount: 3
+    retryBackoffMs: 1000
+  mock:
+    enabled: true
+    simulatedDelayMs: 100

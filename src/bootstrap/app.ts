@@ -5,6 +5,9 @@ import { MysqlClient, ReadOnlyMysqlClient } from '../pkg/mysql/client';
 import pino from 'pino';
 import { RedisClient } from '../pkg/redis/client';
 import { RedisConfig } from '../config/schema';
+import { NoOpCacheProvider } from '../pkg/cache/noop-cache-provider';
+import { RedisCacheProvider } from '../pkg/cache/redis-cache-provider';
+import { CourierAdapterFactory } from '../external/courier/factory/courier-adapter-factory';
 
 export class App {
   private context: AppContext;
@@ -18,7 +21,6 @@ export class App {
   public async init(): Promise<void> {
     let primaryDb: MysqlClient;
     let replicaDb: MysqlClient;
-    let redisClient: RedisClient;
 
     try {
       primaryDb = await this.createMysqlDependency(
@@ -50,29 +52,90 @@ export class App {
     this.context.setPrimaryMysqlDB(primaryDb);
     this.context.setReplicaMysqlDB(replicaDb);
 
-    try {
-      redisClient = await this.createRedisClient(
-        this.context.config.redis,
-        this.context.logger,
-      );
-    } catch (error) {
-      this.context.logger.error(error, 'Critical failure: Redis connection failed');
-      throw error;
-    }
+    await this.initCache();
 
-    this.context.setRedisClient(redisClient);
+    const courierFactory = new CourierAdapterFactory(
+      this.context.buildCourierAdapters(),
+    );
+    this.context.setCourierAdapterFactory(courierFactory);
+
+    await this.seedCourierPartners(primaryDb);
 
     const userReadPrimaryRepo = this.context.getUserReadRepository(primaryDb);
-    const userRepo = this.context.getUserRepository(userReadPrimaryRepo, primaryDb);
+    const userRepo = this.context.getUserRepository(
+      userReadPrimaryRepo,
+      primaryDb,
+    );
     const userReadReplicaRepo = this.context.getUserReadRepository(replicaDb);
 
     const userService = this.context.getUserService(
       userRepo,
       userReadReplicaRepo,
-      redisClient,
     );
     this.context.setUserService(userService);
     this.context.initUserController(userService);
+
+    const shipmentReadPrimaryRepo =
+      this.context.getShipmentReadRepository(primaryDb);
+    const shipmentRepo = this.context.getShipmentRepository(
+      shipmentReadPrimaryRepo,
+      primaryDb,
+    );
+    const shipmentReadReplicaRepo =
+      this.context.getShipmentReadRepository(replicaDb);
+
+    const shipmentService = this.context.getShipmentService(
+      shipmentRepo,
+      shipmentReadReplicaRepo,
+      courierFactory,
+    );
+    this.context.setShipmentService(shipmentService);
+    this.context.initShipmentController(shipmentService);
+  }
+
+  private async initCache(): Promise<void> {
+    if (!this.context.config.cache.enabled) {
+      this.context.logger.info('Cache disabled — running without Redis');
+      this.context.setCacheProvider(new NoOpCacheProvider());
+      return;
+    }
+
+    try {
+      const redisClient = await this.createRedisClient(
+        this.context.config.redis,
+        this.context.logger,
+      );
+      this.context.setRedisClient(redisClient);
+      this.context.setCacheProvider(
+        new RedisCacheProvider(
+          redisClient,
+          this.context.config,
+          this.context.logger,
+        ),
+      );
+    } catch (error) {
+      this.context.logger.warn(
+        { error },
+        'Redis unavailable — falling back to no-op cache',
+      );
+      this.context.setRedisClient(null);
+      this.context.setCacheProvider(new NoOpCacheProvider());
+    }
+  }
+
+  private async seedCourierPartners(db: MysqlClient): Promise<void> {
+    const partners = [
+      { code: 'urbanebolt', name: 'UrbaneBolt' },
+      { code: 'mock', name: 'Mock Courier' },
+    ];
+
+    for (const partner of partners) {
+      await db.client.courierPartner.upsert({
+        where: { code: partner.code },
+        create: partner,
+        update: { name: partner.name, isActive: true },
+      });
+    }
   }
 
   public async runHttpServer(): Promise<void> {

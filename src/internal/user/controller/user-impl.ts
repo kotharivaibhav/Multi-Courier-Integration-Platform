@@ -7,14 +7,34 @@ import { USER_MESSAGES } from '../constants/user';
 import {
   CreateUserRequest,
   ListUsersQuery,
+  LoginRequest,
   UpdateUserRequest,
 } from '../dto/request';
+import { StatusCodes } from 'http-status-codes';
 
 export class UserControllerImpl implements UserController {
   private readonly userService: UserService;
 
   constructor(userService: UserService) {
     this.userService = userService;
+  }
+
+  async login(req: Request, res: Response, next: NextFunction): Promise<void> {
+    const response = new ResponseBuilder();
+    try {
+      const body = req.body as LoginRequest;
+      const result = await this.userService.login(body);
+      response
+        .setResponse(result)
+        .setMessage(USER_MESSAGES.LOGIN_SUCCESS)
+        .build(res);
+    } catch (error) {
+      if (error instanceof AppAPIError) {
+        response.setApiError(error).build(res);
+        return;
+      }
+      next(error);
+    }
   }
 
   async createUser(
@@ -26,7 +46,11 @@ export class UserControllerImpl implements UserController {
     try {
       const body = req.body as CreateUserRequest;
       const user = await this.userService.createUser(body);
-      response.setResponse(user).setMessage(USER_MESSAGES.CREATED).build(res);
+      response
+        .setResponse(user)
+        .setMessage(USER_MESSAGES.CREATED)
+        .setHTTPCode(StatusCodes.CREATED)
+        .build(res);
     } catch (error) {
       if (error instanceof AppAPIError) {
         response.setApiError(error).build(res);
@@ -101,9 +125,12 @@ export class UserControllerImpl implements UserController {
   ): Promise<void> {
     const response = new ResponseBuilder();
     try {
-      const query = req.query as unknown as ListUsersQuery;
+      const query = req.validatedQuery as ListUsersQuery;
       const result = await this.userService.listUsers(query);
-      response.setResponse(result).setMessage(USER_MESSAGES.LIST_FETCHED).build(res);
+      response
+        .setResponse(result)
+        .setMessage(USER_MESSAGES.LIST_FETCHED)
+        .build(res);
     } catch (error) {
       if (error instanceof AppAPIError) {
         response.setApiError(error).build(res);

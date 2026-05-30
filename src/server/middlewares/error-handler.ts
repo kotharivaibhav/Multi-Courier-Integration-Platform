@@ -23,6 +23,8 @@ export function errorHandlerMiddleware(ctx: AppContext) {
       'Internal server error',
     );
 
-    return new ResponseBuilder().setApiError(new ErrInternalServer()).build(res);
+    return new ResponseBuilder()
+      .setApiError(new ErrInternalServer())
+      .build(res);
   };
 }

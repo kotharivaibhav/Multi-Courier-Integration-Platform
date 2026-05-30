@@ -1,0 +1,175 @@
+{
+  "info": {
+    "name": "Multi-Courier Integration Platform",
+    "description": "Unified logistics API — use courier_partner: mock for local testing.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "requestId", "value": "req-{{$randomUUID}}" },
+    { "key": "orderId", "value": "ORD-001" },
+    { "key": "batchId", "value": "" },
+    { "key": "adminToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/v1/health"
+      }
+    },
+    {
+      "name": "Shipment",
+      "item": [
+        {
+          "name": "List Couriers",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "x-request-id", "value": "{{requestId}}" }],
+            "url": "{{baseUrl}}/api/v1/couriers"
+          }
+        },
+        {
+          "name": "Create Shipment (Mock)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-request-id", "value": "{{requestId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"ORD-{{$timestamp}}\",\n  \"courier_partner\": \"mock\",\n  \"service_type\": \"SDD\",\n  \"shipper\": {\n    \"name\": \"Warehouse A\",\n    \"mobile\": \"9876543210\",\n    \"address\": \"123 Industrial Area\",\n    \"city\": \"Gurgaon\",\n    \"state\": \"Haryana\",\n    \"country\": \"INDIA\",\n    \"pincode\": \"122001\"\n  },\n  \"consignee\": {\n    \"name\": \"Customer B\",\n    \"mobile\": \"9123456780\",\n    \"address\": \"456 Main Street\",\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"country\": \"INDIA\",\n    \"pincode\": \"400001\"\n  },\n  \"return_address\": {\n    \"name\": \"Warehouse A\",\n    \"mobile\": \"9876543210\",\n    \"address\": \"123 Industrial Area\",\n    \"city\": \"Gurgaon\",\n    \"state\": \"Haryana\",\n    \"country\": \"INDIA\",\n    \"pincode\": \"122001\"\n  },\n  \"package\": {\n    \"weight\": 1.5,\n    \"length\": 10,\n    \"breadth\": 10,\n    \"height\": 10,\n    \"pieces\": 1,\n    \"description\": \"Electronics\"\n  },\n  \"payment\": {\n    \"mode\": \"COD\",\n    \"collectable_value\": 500,\n    \"declared_value\": 500\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/orders"
+          }
+        },
+        {
+          "name": "Create Shipment (UrbaneBolt)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-request-id", "value": "{{requestId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"UATTEST-{{$timestamp}}\",\n  \"courier_partner\": \"urbanebolt\",\n  \"service_type\": \"SDD\",\n  \"shipper\": {\n    \"name\": \"Rohit Athaley\",\n    \"email\": \"bhopal@mbdgroup.com\",\n    \"mobile\": \"9425018023\",\n    \"address\": \"HOLY FAITH INTERNATIONAL P LTD, Plot No.l37-138-139 Sector-I\",\n    \"city\": \"Govindpura\",\n    \"state\": \"BHOPAL\",\n    \"country\": \"INDIA\",\n    \"pincode\": \"122001\",\n    \"address_type\": \"Seller\"\n  },\n  \"consignee\": {\n    \"name\": \"Satyam Convent School\",\n    \"email\": \"TEST2@AIL.COM\",\n    \"mobile\": \"8320226438\",\n    \"address\": \"Plot No. 26-27, Om Nagar Society, Surat\",\n    \"city\": \"Surat\",\n    \"state\": \"GUJRAT\",\n    \"country\": \"INDIA\",\n    \"pincode\": \"122001\",\n    \"address_type\": \"Home\"\n  },\n  \"return_address\": {\n    \"name\": \"Rohit Athaley\",\n    \"email\": \"bhopal@mbdgroup.com\",\n    \"mobile\": \"9425018023\",\n    \"address\": \"HOLY FAITH INTERNATIONAL P LTD, Plot No.l37-138-139 Sector-I\",\n    \"city\": \"Govindpura\",\n    \"state\": \"BHOPAL\",\n    \"country\": \"INDIA\",\n    \"pincode\": \"122017\",\n    \"address_type\": \"Seller\"\n  },\n  \"package\": {\n    \"weight\": 1.1,\n    \"length\": 12,\n    \"breadth\": 10,\n    \"height\": 10,\n    \"pieces\": 1,\n    \"description\": \"BOOKS\",\n    \"quantity\": 1\n  },\n  \"payment\": {\n    \"mode\": \"COD\",\n    \"collectable_value\": 1,\n    \"declared_value\": 100\n  },\n  \"invoice\": {\n    \"number\": \"INV0002\",\n    \"date\": \"2024-10-02\",\n    \"value\": 10\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/orders"
+          }
+        },
+        {
+          "name": "Track Shipment",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "x-request-id", "value": "{{requestId}}" }],
+            "url": "{{baseUrl}}/api/v1/orders/{{orderId}}/track"
+          }
+        },
+        {
+          "name": "Cancel Shipment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "x-request-id", "value": "{{requestId}}" }],
+            "url": "{{baseUrl}}/api/v1/orders/{{orderId}}/cancel"
+          }
+        },
+        {
+          "name": "Bulk Create Shipments",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-request-id", "value": "{{requestId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orders\": [\n    {\n      \"order_id\": \"BULK-001\",\n      \"courier_partner\": \"mock\",\n      \"shipper\": { \"name\": \"WH\", \"mobile\": \"9876543210\", \"address\": \"Addr\", \"city\": \"Gurgaon\", \"state\": \"HR\", \"country\": \"INDIA\", \"pincode\": \"122001\" },\n      \"consignee\": { \"name\": \"C1\", \"mobile\": \"9123456780\", \"address\": \"Addr\", \"city\": \"Mumbai\", \"state\": \"MH\", \"country\": \"INDIA\", \"pincode\": \"400001\" },\n      \"return_address\": { \"name\": \"WH\", \"mobile\": \"9876543210\", \"address\": \"Addr\", \"city\": \"Gurgaon\", \"state\": \"HR\", \"country\": \"INDIA\", \"pincode\": \"122001\" },\n      \"package\": { \"weight\": 1, \"length\": 10, \"breadth\": 10, \"height\": 10, \"pieces\": 1, \"description\": \"Item\" },\n      \"payment\": { \"mode\": \"PREPAID\", \"collectable_value\": 0, \"declared_value\": 100 }\n    },\n    {\n      \"order_id\": \"BULK-002\",\n      \"courier_partner\": \"mock\",\n      \"shipper\": { \"name\": \"WH\", \"mobile\": \"9876543210\", \"address\": \"Addr\", \"city\": \"Gurgaon\", \"state\": \"HR\", \"country\": \"INDIA\", \"pincode\": \"122001\" },\n      \"consignee\": { \"name\": \"C2\", \"mobile\": \"9123456781\", \"address\": \"Addr\", \"city\": \"Delhi\", \"state\": \"DL\", \"country\": \"INDIA\", \"pincode\": \"110001\" },\n      \"return_address\": { \"name\": \"WH\", \"mobile\": \"9876543210\", \"address\": \"Addr\", \"city\": \"Gurgaon\", \"state\": \"HR\", \"country\": \"INDIA\", \"pincode\": \"122001\" },\n      \"package\": { \"weight\": 2, \"length\": 10, \"breadth\": 10, \"height\": 10, \"pieces\": 1, \"description\": \"Item\" },\n      \"payment\": { \"mode\": \"COD\", \"collectable_value\": 200, \"declared_value\": 200 }\n    }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/orders/bulk"
+          }
+        },
+        {
+          "name": "Get Bulk Batch Status",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "x-request-id", "value": "{{requestId}}" }],
+            "url": "{{baseUrl}}/api/v1/orders/bulk/{{batchId}}"
+          }
+        },
+        {
+          "name": "Webhook (Mock)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-request-id", "value": "{{requestId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{orderId}}\",\n  \"awb_number\": \"MOCK123\",\n  \"status_code\": \"DLV\",\n  \"description\": \"Delivered\",\n  \"location\": \"Mumbai\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/webhooks/mock"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Admin Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-request-id", "value": "{{requestId}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Admin@12345\"\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/v1/users/login"
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-request-id", "value": "{{requestId}}" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"user-{{$timestamp}}@example.com\",\n  \"password\": \"password123\",\n  \"mobileNumber\": \"9876543210\"\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/v1/users/"
+          }
+        },
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-request-id", "value": "{{requestId}}" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/v1/users/?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "v1", "users", ""],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -31,8 +31,13 @@ export const validateRequestInterceptor = (
         const message = headersResult.error.errors
           .map((e) => `${e.path.join('.')}: ${e.message}`)
           .join(', ');
-        log.error({ errors: headersResult.error.errors }, 'Headers validation failed');
-        resp.setApiError(new ErrValidation(`Invalid headers - ${message}`)).build(res);
+        log.error(
+          { errors: headersResult.error.errors },
+          'Headers validation failed',
+        );
+        resp
+          .setApiError(new ErrValidation(`Invalid headers - ${message}`))
+          .build(res);
         return;
       }
 
@@ -42,7 +47,9 @@ export const validateRequestInterceptor = (
           const message = paramsResult.error.errors
             .map((e) => `${e.path.join('.')}: ${e.message}`)
             .join(', ');
-          resp.setApiError(new ErrValidation(`Invalid params - ${message}`)).build(res);
+          resp
+            .setApiError(new ErrValidation(`Invalid params - ${message}`))
+            .build(res);
           return;
         }
       }
@@ -53,10 +60,12 @@ export const validateRequestInterceptor = (
           const message = queryResult.error.errors
             .map((e) => `${e.path.join('.')}: ${e.message}`)
             .join(', ');
-          resp.setApiError(new ErrValidation(`Invalid query - ${message}`)).build(res);
+          resp
+            .setApiError(new ErrValidation(`Invalid query - ${message}`))
+            .build(res);
           return;
         }
-        req.query = queryResult.data;
+        req.validatedQuery = queryResult.data;
       }
 
       if (schemas.body) {
@@ -65,7 +74,9 @@ export const validateRequestInterceptor = (
           const message = bodyResult.error.errors
             .map((e) => `${e.path.join('.')}: ${e.message}`)
             .join(', ');
-          resp.setApiError(new ErrValidation(`Invalid body - ${message}`)).build(res);
+          resp
+            .setApiError(new ErrValidation(`Invalid body - ${message}`))
+            .build(res);
           return;
         }
         req.body = bodyResult.data;

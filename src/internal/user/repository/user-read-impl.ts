@@ -4,10 +4,8 @@ import { User } from '@prisma/client';
 import { ListUsersInput } from '../dto/user';
 import { newPrismaNotFoundError } from '../../../pkg/prisma/errors';
 
-const NOT_DELETED = { deletedAt: null };
-
 export class UserReadRepositoryImpl implements UserReadRepository {
-  private db: MysqlClient;
+  private readonly db: MysqlClient;
 
   constructor(db: MysqlClient) {
     this.db = db;
@@ -15,7 +13,7 @@ export class UserReadRepositoryImpl implements UserReadRepository {
 
   async getUserById(id: number): Promise<User> {
     const user = await this.db.client.user.findFirst({
-      where: { id, ...NOT_DELETED },
+      where: { id, deletedAt: null },
     });
     if (!user) {
       throw newPrismaNotFoundError();
@@ -25,22 +23,23 @@ export class UserReadRepositoryImpl implements UserReadRepository {
 
   async findUserByEmail(email: string): Promise<User | null> {
     return this.db.client.user.findFirst({
-      where: { email, ...NOT_DELETED },
+      where: { email, deletedAt: null },
     });
   }
 
   async findUserByMobile(mobileNumber: string): Promise<User | null> {
     return this.db.client.user.findFirst({
-      where: { mobileNumber, ...NOT_DELETED },
+      where: { mobileNumber, deletedAt: null },
     });
   }
 
-  async listUsers(input: ListUsersInput): Promise<{ users: User[]; total: number }> {
+  async listUsers(
+    input: ListUsersInput,
+  ): Promise<{ users: User[]; total: number }> {
     const where = {
-      ...NOT_DELETED,
+      deletedAt: null,
       ...(input.status ? { status: input.status } : {}),
     };
-
     const skip = (input.page - 1) * input.limit;
 
     const [users, total] = await Promise.all([
@@ -48,7 +47,7 @@ export class UserReadRepositoryImpl implements UserReadRepository {
         where,
         skip,
         take: input.limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { id: 'desc' },
       }),
       this.db.client.user.count({ where }),
     ]);

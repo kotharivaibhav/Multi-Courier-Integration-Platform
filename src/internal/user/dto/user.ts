@@ -17,6 +17,11 @@ export interface UserListResponseDto {
   limit: number;
 }
 
+export interface LoginResponseDto {
+  token: string;
+  user: UserResponseDto;
+}
+
 export interface CreateUserInput {
   name: string;
   email: string;
@@ -31,6 +36,11 @@ export interface UpdateUserInput {
   password?: string;
   mobileNumber?: string;
   status?: UserStatus;
+}
+
+export interface LoginInput {
+  email: string;
+  password: string;
 }
 
 export interface ListUsersInput {

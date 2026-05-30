@@ -2,6 +2,11 @@ import { z } from 'zod';
 import { UserStatus } from '@prisma/client';
 import { USER_DEFAULTS } from '../constants/user';
 
+export const LoginSchema = z.object({
+  email: z.string().email().max(255),
+  password: z.string().min(8).max(128),
+});
+
 export const CreateUserSchema = z.object({
   name: z.string().min(1).max(255),
   email: z.string().email().max(255),
@@ -42,6 +47,7 @@ export const ListUsersQuerySchema = z.object({
   status: z.nativeEnum(UserStatus).optional(),
 });
 
+export type LoginRequest = z.infer<typeof LoginSchema>;
 export type CreateUserRequest = z.infer<typeof CreateUserSchema>;
 export type UpdateUserRequest = z.infer<typeof UpdateUserSchema>;
 export type ListUsersQuery = z.infer<typeof ListUsersQuerySchema>;

@@ -3,7 +3,6 @@ import { MysqlClient } from '../../../pkg/mysql/client';
 import { UserReadRepository } from './user-read';
 import { User, UserStatus } from '@prisma/client';
 import { ListUsersInput } from '../dto/user';
-import { isUpdatePayloadEmpty } from '../../shared/validator/query';
 
 export class UserRepositoryImpl implements UserRepository {
   private readRepository: UserReadRepository;
@@ -26,7 +25,9 @@ export class UserRepositoryImpl implements UserRepository {
     return this.readRepository.findUserByMobile(mobileNumber);
   }
 
-  async listUsers(input: ListUsersInput): Promise<{ users: User[]; total: number }> {
+  async listUsers(
+    input: ListUsersInput,
+  ): Promise<{ users: User[]; total: number }> {
     return this.readRepository.listUsers(input);
   }
 
@@ -41,11 +42,14 @@ export class UserRepositoryImpl implements UserRepository {
   }
 
   async updateUserById(id: number, data: Partial<User>): Promise<User | null> {
-    if (isUpdatePayloadEmpty(data as Record<string, unknown>)) {
+    const existing = await this.db.client.user.findFirst({
+      where: { id, deletedAt: null },
+    });
+    if (!existing) {
       return null;
     }
     return this.db.client.user.update({
-      where: { id, deletedAt: null },
+      where: { id },
       data,
     });
   }
