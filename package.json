@@ -4,9 +4,9 @@
   "description": "Multi-courier logistics platform backend",
   "type": "commonjs",
   "scripts": {
-    "dev": "rimraf dist && prisma generate && tsc && concurrently \"tsc --watch\" \"nodemon --watch src --ext ts --exec \\\"node dist/main.js\\\" --delay 500ms\"",
-    "build": "prisma generate && tsc",
-    "start": "node dist/main.js",
+    "dev": "node init && rimraf dist && prisma generate && tsc && concurrently \"tsc --watch\" \"nodemon --watch src --ext ts --exec \\\"node dist/main.js\\\" --delay 500ms\"",
+    "build": "node init && prisma generate && tsc",
+    "start": "node init && node dist/main.js",
     "setup": "npm install && npx prisma migrate deploy && npm run build",
     "db:migrate": "npx prisma migrate deploy",
     "db:reset": "npx prisma migrate reset --force",

@@ -51,12 +51,12 @@ auth:
 couriers:
   urbanebolt:
     enabled: true
-    baseUrl: "https://uat.urbanebolt.in"
-    username: "info@urbanebolt.com"
-    password: "EKIcygsLVV5RCtPZ"
-    customerCode: "UEBCUS0008"
-    csrfToken: "SuZfjeJQJQNlDaNxRJgaMqylRWlqogsL"
-    sessionId: ""
+    baseUrl: "https://uat.example.in"
+    username: "info@example.com"
+    password: "XXXXXX"
+    customerCode: "XXXXX"
+    csrfToken: "XXXXX"
+    sessionId: "XXXXX"
     timeoutMs: 30000
     retryCount: 3
     retryBackoffMs: 1000
